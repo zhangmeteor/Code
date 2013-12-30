@@ -17,5 +17,7 @@
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 - (IBAction)saveAction:(id)sender;
-
+@property (weak) IBOutlet NSTextField *BeforeTransfer;
+@property (weak) IBOutlet NSTextField *AfterTransfer;
+-(IBAction)Transfer:(id)sender;
 @end

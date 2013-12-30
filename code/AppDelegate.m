@@ -7,7 +7,44 @@
 //
 
 #import "AppDelegate.h"
+#include <stdlib.h>
 
+void LongToHex(long longValue,char** Hex,int position)
+{
+    char num[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+    char result[20];
+    int i = 0;
+    int temp;
+    while (longValue > 0)
+    {
+        temp = longValue%16;
+        longValue /= 16;
+        result[i++] = num[temp];
+    }
+    result[i] = '\0';
+    
+    //反转
+    for(int j = 0;j < i/2;j++)
+    {
+        char ch = result[i-1-j];
+        result[i-1-j] = result[j];
+        result[j] = ch;
+    }
+    memcpy(Hex+position,result,strlen(result));
+    strcpy(*Hex, result);
+}
+
+void string2ASCII(char** str)
+{
+    for (int i = 0 ; i < strlen(*str); i++) {
+        if ((i+1)%3 != 0) {
+            continue;
+        }
+        int temp = *str[i] | *str[i-1]<<2 | *str[i-2]<<4;
+        temp =  temp ^ 0x747674;
+        memcpy(str[i-2], &temp, 3);
+    }
+}
 @implementation AppDelegate
 
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
@@ -180,4 +217,14 @@
     return NSTerminateNow;
 }
 
+-(IBAction)Transfer:(id)sender
+{
+    char* NeedTransefer = new char[100];
+    const char* temp =  [[self.BeforeTransfer stringValue]UTF8String];
+    strcpy(NeedTransefer, temp);
+    string2ASCII(&NeedTransefer);
+    NSString* output = [NSString stringWithUTF8String:NeedTransefer];
+    delete NeedTransefer;
+    [self.AfterTransfer setStringValue:output];
+}
 @end
