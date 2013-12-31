@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #include <stdlib.h>
+#include <string.h>
 
 void LongToHex(long longValue,char** Hex,int position)
 {
@@ -36,14 +37,20 @@ void LongToHex(long longValue,char** Hex,int position)
 
 void string2ASCII(char** str)
 {
+    char temp[1000];
+//    memset(&temp, 0, strlen(temp));
     for (int i = 0 ; i < strlen(*str); i++) {
+        strncpy(temp+i,*str+i,1);
+        temp[i+1] = '\0';
         if ((i+1)%3 != 0) {
             continue;
         }
-        int temp = *str[i] | *str[i-1]<<2 | *str[i-2]<<4;
-        temp =  temp ^ 0x747674;
-        memcpy(str[i-2], &temp, 3);
+//        long temp = *str[i] | *str[i-1]<<8 | *str[i-2]<<16;
+        temp[i-2] = temp[i-2] ^ 0x74;
+        temp[i-1] = temp[i-1] ^ 0x76;
+        temp[i] = temp[i] ^ 0x74;
     }
+    memcpy(*str, temp, strlen(temp));
 }
 @implementation AppDelegate
 
@@ -219,12 +226,19 @@ void string2ASCII(char** str)
 
 -(IBAction)Transfer:(id)sender
 {
-    char* NeedTransefer = new char[100];
+    char* NeedTransefer = new char[100000];
     const char* temp =  [[self.BeforeTransfer stringValue]UTF8String];
     strcpy(NeedTransefer, temp);
     string2ASCII(&NeedTransefer);
-    NSString* output = [NSString stringWithUTF8String:NeedTransefer];
-    delete NeedTransefer;
+    NSString* output = [NSString stringWithFormat:@""];
+    
+    for(int i=0;i<strlen(NeedTransefer);i++)
+    {
+        NSString *newHexStr = [NSString stringWithFormat:@"%x",NeedTransefer[i]&0xff];///16进制数
+        output = [output stringByAppendingString:newHexStr];
+    }
     [self.AfterTransfer setStringValue:output];
+    output = Nil;
+    delete NeedTransefer;
 }
 @end
